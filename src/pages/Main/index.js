@@ -21,6 +21,42 @@ export default class Main extends Component {
     this.setState({ loading: false, repositories: await this.getLocalRepositories() });
   }
 
+  handleRemoveRepository = async (id) => {
+    const { repositories } = this.state;
+
+    const newRepoList = repositories.filter(repo => repo.id !== id);
+
+    this.setState({ repositories: newRepoList });
+
+    await this.setLocalRepositories(newRepoList);
+  };
+
+  handleUpdateRepository = async (id) => {
+    this.setState({ loading: true });
+
+    const { repositories } = this.state;
+
+    const repository = repositories.find(repo => repo.id === id);
+
+    try {
+      const { data } = await api.get(`/repos/${repository.full_name}`);
+
+      data.lastCommint = moment(data.pushed_at).fromNow();
+
+      this.setState({
+        repositoryError: false,
+        repositoryInput: '',
+        repositories: repositories.map(repo => (repo.id === data.id ? data : repo)),
+      });
+
+      await this.setLocalRepositories(repositories);
+    } catch (error) {
+      this.setState({ repositoryError: true });
+    } finally {
+      this.setState({ loading: false });
+    }
+  };
+
   handleAddRepository = async (e) => {
     e.preventDefault();
 
@@ -39,10 +75,7 @@ export default class Main extends Component {
 
       const localRepositories = await this.getLocalRepositories();
 
-      await localStorage.setItem(
-        '@GitCompare:repositories',
-        JSON.stringify([...localRepositories, repository]),
-      );
+      this.setLocalRepositories([...localRepositories, repository]);
     } catch (error) {
       this.setState({ repositoryError: true });
     } finally {
@@ -51,6 +84,10 @@ export default class Main extends Component {
   };
 
   getLocalRepositories = async () => JSON.parse(await localStorage.getItem('@GitCompare:repositories')) || [];
+
+  setLocalRepositories = async (repositories) => {
+    await localStorage.setItem('@GitCompare:repositories', JSON.stringify(repositories));
+  };
 
   render() {
     return (
@@ -69,7 +106,11 @@ export default class Main extends Component {
           </button>
         </Form>
 
-        <CompareList repositories={this.state.repositories} />
+        <CompareList
+          repositories={this.state.repositories}
+          onUpdate={this.handleUpdateRepository}
+          onRemove={this.handleRemoveRepository}
+        />
       </Container>
     );
   }

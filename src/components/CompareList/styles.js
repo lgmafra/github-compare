@@ -58,3 +58,41 @@ export const Repository = styled.div`
     }
   }
 `;
+
+export const ButtonContainer = styled.div`
+  display: flex;
+  /* flex-direction: row; */
+  justify-content: space-around;
+
+  button {
+    flex: 1;
+
+    height: 40px;
+    color: #fff;
+    margin: 10px;
+    border: 0;
+    font-size: 16px;
+    font-weight: bold;
+    border-radius: 3px;
+
+    i {
+      margin-right: 3px;
+    }
+
+    &.update {
+      background: #33f;
+
+      &:hover {
+        background: #1a1aff;
+      }
+    }
+
+    &.remove {
+      background: #f33;
+
+      &:hover {
+        background: #ff1a1a;
+      }
+    }
+  }
+`;
