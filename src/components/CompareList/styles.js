@@ -61,7 +61,6 @@ export const Repository = styled.div`
 
 export const ButtonContainer = styled.div`
   display: flex;
-  /* flex-direction: row; */
   justify-content: space-around;
 
   button {
