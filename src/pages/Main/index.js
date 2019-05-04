@@ -15,6 +15,12 @@ export default class Main extends Component {
     repositories: [],
   };
 
+  async componentDidMount() {
+    this.setState({ loading: true });
+
+    this.setState({ loading: false, repositories: await this.getLocalRepositories() });
+  }
+
   handleAddRepository = async (e) => {
     e.preventDefault();
 
@@ -30,12 +36,21 @@ export default class Main extends Component {
         repositories: [...this.state.repositories, repository],
         repositoryError: false,
       });
+
+      const localRepositories = await this.getLocalRepositories();
+
+      await localStorage.setItem(
+        '@GitCompare:repositories',
+        JSON.stringify([...localRepositories, repository]),
+      );
     } catch (error) {
       this.setState({ repositoryError: true });
     } finally {
       this.setState({ loading: false });
     }
   };
+
+  getLocalRepositories = async () => JSON.parse(await localStorage.getItem('@GitCompare:repositories')) || [];
 
   render() {
     return (
